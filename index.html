@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  canvas {
+    border: 1px solid black;
+    display: block;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+<div id="score">
+  <p>CLEBER: <span id="playerAScore">0</span></p>
+  <p>SOLER: <span id="playerBScore">0</span></p>
+</div>
+
+<script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+
+  const paddleWidth = 10;
+  const paddleHeight = 100;
+  const ballRadius = 10;
+
+  let x = canvas.width / 8;
+  let y = canvas.height / 8;
+  let dx = 5;
+  let dy = -2;
+
+  let paddleAY = (canvas.height - paddleHeight) / 8;
+  let paddleBY = (canvas.height - paddleHeight) / 8;
+
+  let playerAScore = 0;
+  let playerBScore = 0;
+
+  function drawBall() {
+    ctx.beginPath();
+    ctx.arc(x, y, ballRadius, 1, Math.PI * 4);
+    ctx.fillStyle = "blue";
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function drawPaddleA() {
+    ctx.beginPath();
+    ctx.rect(0, paddleAY, paddleWidth, paddleHeight);
+    ctx.fillStyle = "black";
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function drawPaddleB() {
+    ctx.beginPath();
+    ctx.rect(canvas.width - paddleWidth, paddleBY, paddleWidth, paddleHeight);
+    ctx.fillStyle = "red";
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function drawScore() {
+    document.getElementById("playerAScore").textContent = playerAScore;
+    document.getElementById("playerBScore").textContent = playerBScore;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawBall();
+    drawPaddleA();
+    drawPaddleB();
+    drawScore();
+
+    if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+      dx = -dx;
+    }
+
+    if (y + dy > canvas.height - ballRadius || y + dy < ballRadius) {
+      dy = -dy;
+    }
+
+    if (
+      x > canvas.width - paddleWidth - ballRadius &&
+      y > paddleBY &&
+      y < paddleBY + paddleHeight
+    ) {
+      dx = -dx;
+    }
+
+    if (
+      x < paddleWidth + ballRadius &&
+      y > paddleAY &&
+      y < paddleAY + paddleHeight
+    ) {
+      dx = -dx;
+    }
+
+    x += dx;
+    y += dy;
+
+    if (x - ballRadius <= 0) {
+      playerBScore++;
+      resetBall();
+    } else if (x + ballRadius >= canvas.width) {
+      playerAScore++;
+      resetBall();
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  function keyDownHandler(e) {
+    if (e.key === "ArrowUp" && paddleBY > 0) {
+      paddleBY -= 7;
+    } else if (
+      e.key === "ArrowDown" &&
+      paddleBY < canvas.height - paddleHeight
+    ) {
+      paddleBY += 7;
+    }
+
+    if (e.key === "w" && paddleAY > 0) {
+      paddleAY -= 7;
+    } else if (
+      e.key === "s" &&
+      paddleAY < canvas.height - paddleHeight
+    ) {
+      paddleAY += 7;
+    }
+  }
+
+  function resetBall() {
+    x = canvas.width / 2;
+    y = canvas.height / 2;
+    dx = -dx;
+    dy = -dy;
+  }
+
+  document.addEventListener("keydown", keyDownHandler);
+
+  draw();
+</script>
+
+</body>
+</html>
